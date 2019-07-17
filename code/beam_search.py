@@ -3,9 +3,11 @@ from nn import *
 from utils import strip_eos
 from copy import deepcopy
 
+
 class BeamState(object):
     def __init__(self, h, inp, sent, nll):
         self.h, self.inp, self.sent, self.nll = h, inp, sent, nll
+
 
 class Decoder(object):
 

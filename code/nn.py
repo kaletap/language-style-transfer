@@ -1,8 +1,10 @@
 import tensorflow as tf
 import numpy as np
 
+
 def leaky_relu(x, alpha=0.01):
     return tf.maximum(alpha * x, x)
+
 
 def create_cell(dim, n_layers, dropout):
     cell = tf.nn.rnn_cell.GRUCell(dim)
@@ -12,12 +14,14 @@ def create_cell(dim, n_layers, dropout):
         cell = tf.nn.rnn_cell.MultiRNNCell([cell] * n_layers)
     return cell
 
+
 def retrive_var(scopes):
     var = []
     for scope in scopes:
         var += tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
             scope=scope)
     return var
+
 
 def linear(inp, dim_out, scope, reuse=False):
     dim_in = inp.get_shape().as_list()[-1]
@@ -28,6 +32,7 @@ def linear(inp, dim_out, scope, reuse=False):
         W = tf.get_variable('W', [dim_in, dim_out])
         b = tf.get_variable('b', [dim_out])
     return tf.matmul(inp, W) + b
+
 
 def combine(x, y, scope, reuse=False):
     dim_x = x.get_shape().as_list()[-1]
@@ -42,6 +47,7 @@ def combine(x, y, scope, reuse=False):
 
     h = tf.matmul(tf.concat([x, y], 1), W) + b
     return leaky_relu(h)
+
 
 def feed_forward(inp, scope, reuse=False):
     dim = inp.get_shape().as_list()[-1]
@@ -59,10 +65,12 @@ def feed_forward(inp, scope, reuse=False):
 
     return tf.reshape(logits, [-1])
 
+
 def gumbel_softmax(logits, gamma, eps=1e-20):
     U = tf.random_uniform(tf.shape(logits))
     G = -tf.log(-tf.log(U + eps) + eps)
     return tf.nn.softmax((logits + G) / gamma)
+
 
 def softsample_word(dropout, proj_W, proj_b, embedding, gamma):
 
@@ -75,6 +83,7 @@ def softsample_word(dropout, proj_W, proj_b, embedding, gamma):
 
     return loop_func
 
+
 def softmax_word(dropout, proj_W, proj_b, embedding, gamma):
 
     def loop_func(output):
@@ -86,6 +95,7 @@ def softmax_word(dropout, proj_W, proj_b, embedding, gamma):
 
     return loop_func
 
+
 def argmax_word(dropout, proj_W, proj_b, embedding):
 
     def loop_func(output):
@@ -96,6 +106,7 @@ def argmax_word(dropout, proj_W, proj_b, embedding):
         return inp, logits
 
     return loop_func
+
 
 def rnn_decode(h, inp, length, cell, loop_func, scope):
     h_seq, logits_seq = [], []
@@ -109,6 +120,7 @@ def rnn_decode(h, inp, length, cell, loop_func, scope):
             logits_seq.append(tf.expand_dims(logits, 1))
 
     return tf.concat(h_seq, 1), tf.concat(logits_seq, 1)
+
 
 def cnn(inp, filter_sizes, n_filters, dropout, scope, reuse=False):
     dim = inp.get_shape().as_list()[-1]
@@ -139,6 +151,7 @@ def cnn(inp, filter_sizes, n_filters, dropout, scope, reuse=False):
             logits = tf.reshape(tf.matmul(outputs, W) + b, [-1])
 
     return logits
+
 
 def discriminator(x_real, x_fake, ones, zeros,
     filter_sizes, n_filters, dropout, scope,

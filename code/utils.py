@@ -1,9 +1,11 @@
 import numpy as np
 import random
 
+
 def strip_eos(sents):
     return [sent[:sent.index('<eos>')] if '<eos>' in sent else sent
         for sent in sents]
+
 
 def feed_dictionary(model, batch, rho, gamma, dropout=1, learning_rate=None):
     feed_dict = {model.dropout: dropout,
@@ -19,17 +21,20 @@ def feed_dictionary(model, batch, rho, gamma, dropout=1, learning_rate=None):
                  model.labels: batch['labels']}
     return feed_dict
 
+
 def makeup(_x, n):
     x = []
     for i in range(n):
         x.append(_x[i % len(_x)])
     return x
 
+
 def reorder(order, _x):
-    x = range(len(_x))
+    x = list(range(len(_x)))
     for i, a in zip(order, _x):
         x[i] = a
     return x
+
 
 # noise model from paper "Unsupervised Machine Translation Using Monolingual Corpora Only"
 def noise(x, unk, word_drop=0.0, k=3):
@@ -41,6 +46,7 @@ def noise(x, unk, word_drop=0.0, k=3):
     # slight shuffle such that |sigma[i]-i| <= k
     sigma = (np.arange(n) + (k+1) * np.random.rand(n)).argsort()
     return [x[sigma[i]] for i in range(n)]
+
 
 def get_batch(x, y, word2id, noisy=False, min_len=5):
     pad = word2id['<pad>']
@@ -69,6 +75,7 @@ def get_batch(x, y, word2id, noisy=False, min_len=5):
             'size':       len(x),
             'len':        max_len+1}
 
+
 def get_batches(x0, x1, word2id, batch_size, noisy=False):
     if len(x0) < len(x1):
         x0 = makeup(x0, len(x1))
@@ -76,13 +83,13 @@ def get_batches(x0, x1, word2id, batch_size, noisy=False):
         x1 = makeup(x1, len(x0))
     n = len(x0)
 
-    order0 = range(n)
+    order0 = list(range(n))
     z = sorted(zip(order0, x0), key=lambda i: len(i[1]))
-    order0, x0 = zip(*z)
+    order0, x0 = list(zip(*z))
 
-    order1 = range(n)
+    order1 = list(range(n))
     z = sorted(zip(order1, x1), key=lambda i: len(i[1]))
-    order1, x1 = zip(*z)
+    order1, x1 = list(zip(*z))
 
     batches = []
     s = 0
