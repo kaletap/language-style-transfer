@@ -39,3 +39,19 @@ python style_transfer.py --test ../data/yelp/sentiment.test --output ../tmp/sent
 
 ## Dependencies
 Python >= 2.7, TensorFlow 1.3.0
+
+As always it is a pain to manage versions of python and it's libraries.
+This repo relies on `tensorflow==1.3.0` which is available only for
+python 3.6, so you will have to install it if you don't have it. In
+order to run this code before proceeding with instructions above do the
+following:
+
+1. `sudo apt update && sudo apt install python3.6` skip if you already
+   have python3.6 installed
+2. `python3.6 -m venv lst_env_3.6` create virtual environment named
+   `lst_env_3.6`
+3. `source lst_env_3.6/bin/activate` activate newly created environment
+   (do this every time you want to run a code in this repo)
+4. `pip install -r requirements.txt`
+
+(tested on Ubuntu 18).
