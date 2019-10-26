@@ -10,7 +10,7 @@ import tensorflow as tf
 from vocab import Vocabulary, build_vocab
 from accumulator import Accumulator
 from options import load_arguments
-from file_io import load_sent, write_sent
+from file_io import load_sent, write_sent, write_json, write_csv
 from utils import *
 from nn import *
 import beam_search, greedy_decoding
@@ -157,6 +157,7 @@ class Model(object):
 
 
 def transfer(model, decoder, sess, args, vocab, data0, data1, out_path):
+    print("Started transfering data")
     batches, order0, order1 = get_batches(data0, data1,
         vocab.word2id, args.batch_size)
 
@@ -183,11 +184,11 @@ def transfer(model, decoder, sess, args, vocab, data0, data1, out_path):
     data1_tsf = reorder(order1, data1_tsf)[:n1]
 
     if out_path:
-        #write_sent(data0_rec, out_path+'.0'+'.rec')
-        #write_sent(data1_rec, out_path+'.1'+'.rec')
-        write_sent(data0_tsf, out_path+'.0'+'.tsf')
-        write_sent(data1_tsf, out_path+'.1'+'.tsf')
-
+        # write_sent(data0_rec, out_path+'.0'+'.rec')
+        # write_sent(data1_rec, out_path+'.1'+'.rec')
+        # write_sent(data0_tsf, out_path+'.0'+'.tsf')
+        # write_sent(data1_tsf, out_path+'.1'+'.tsf')
+        write_csv(data0, data0_tsf, data1, data1_tsf, out_path)
     return losses
 
 
@@ -305,8 +306,11 @@ if __name__ == '__main__':
                 gamma = max(args.gamma_min, gamma * args.gamma_decay)
 
         if args.test:
+            import time
+            start = time.time()
             test_losses = transfer(model, decoder, sess, args, vocab,
                 test0, test1, args.output)
+            print("Transfer took {} s".format(time.time() - start))
             test_losses.output('test')
 
         if args.online_testing:
